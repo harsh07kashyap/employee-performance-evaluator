@@ -126,6 +126,9 @@ with col1:
     st.subheader("Generate Evaluation")
      # --- Sample Buttons ---
     col_btn1, col_btn2 = st.columns(2)
+    
+    if "logs_input" not in st.session_state:
+        st.session_state.logs_input = ""
 
     with col_btn1:
         if st.button("Insert Sample Logs 1"):
@@ -171,13 +174,13 @@ Employee E010 is a QA Engineer.
 On 13th September, they completed 11 tasks, executed 42 test cases, logged 7 bugs, verified 4 bug fixes, created 2 regression test suites, attended 1 meeting, and worked actively for 6.3 hours.
 Manager’s review: Very Good. They also updated 1 automation framework."""
     
+   
     # Text Area for User Input/Logs (RAG Query)
-    st.session_state.logs_input = st.text_area(
+    st.text_area(
         "Enter your company's employee performance logs or relevant data:", 
         height=180, 
         placeholder="e.g., Provide a balanced performance review...",
-        key="logs_input_area",
-        value=st.session_state.get('logs_input', "")
+        key="logs_input"
     )
     
 
