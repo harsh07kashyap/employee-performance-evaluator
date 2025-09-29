@@ -117,20 +117,69 @@ if 'logs_input' not in st.session_state:
     st.session_state.logs_input = ""
 
 
+
 # --- Main Two-Column Layout ---
 col1, col2 = st.columns([1, 1.2]) # Input column slightly smaller than Output column
 
 # LEFT COLUMN: Generate Evaluation (Input)
 with col1:
     st.subheader("Generate Evaluation")
+     # --- Sample Buttons ---
+    col_btn1, col_btn2 = st.columns(2)
+
+    with col_btn1:
+        if st.button("Insert Sample Logs 1"):
+            st.session_state.logs_input = """Employee E001 is a Data Scientist. 
+On 11th September, they completed 11 tasks, made 5 commits, fixed 2 bugs, implemented 2 features, 
+created 4 reports, attended 1 meeting, and worked actively for 6.1 hours. 
+Manager’s review: Excellent. They also ran 2 experiments.
+
+Employee E002 is a Software Engineer.
+On 11th September, they completed 9 tasks, made 12 commits, fixed 5 bugs, implemented 3 features, reviewed 2 pull requests, attended 2 meetings, and worked actively for 7.4 hours.
+Manager’s review: Very Good. They also refactored 1 module.
+
+Employee E003 is a Business Analyst.
+On 11th September, they completed 7 tasks, prepared 3 reports, conducted 2 requirement sessions, analyzed 1 dataset, attended 3 meetings, and worked actively for 6.0 hours.
+Manager’s review: Good. They also created 1 presentation deck.
+
+Employee E004 is a DevOps Engineer.
+On 11th September, they completed 8 tasks, deployed 2 releases, fixed 3 CI/CD issues, wrote 4 infrastructure scripts, monitored 2 incidents, attended 1 meeting, and worked actively for 7.2 hours.
+Manager’s review: Excellent. They also automated 1 backup routine.
+
+Employee E005 is a QA Engineer.
+On 11th September, they completed 10 tasks, executed 35 test cases, logged 6 bugs, verified 3 bug fixes, wrote 2 automation scripts, attended 1 meeting, and worked actively for 6.5 hours.
+Manager’s review: Very Good. They also prepared 1 test plan."""
+
+    with col_btn2:
+        if st.button("Insert Sample Logs 2"):
+            st.session_state.logs_input = """Employee E006 is a UI/UX Designer.
+On 12th September, they completed 6 tasks, created 3 wireframes, designed 2 prototypes, reviewed 1 design audit, collaborated on 2 feedback sessions, attended 2 meetings, and worked actively for 6.8 hours.
+Manager’s review: Excellent. They also updated 1 design guideline document.
+
+Employee E007 is a Data Scientist.
+On 13th September, they completed 10 tasks, made 4 commits, built 1 machine learning model, fixed 2 data pipeline issues, prepared 2 reports, attended 1 meeting, and worked actively for 7.0 hours.
+Manager’s review: Very Good. They also ran 3 experiments.
+
+Employee E008 is a Software Engineer.
+On 12th September, they completed 12 tasks, made 15 commits, fixed 4 bugs, implemented 2 features, reviewed 1 pull request, attended 2 meetings, and worked actively for 7.6 hours.
+Manager’s review: Excellent. They also optimized 1 database query.
+
+Employee E009 is a DevOps Engineer.
+On 14th September, they completed 9 tasks, deployed 1 release, fixed 2 monitoring alerts, wrote 3 automation scripts, updated 1 server configuration, attended 2 meetings, and worked actively for 6.9 hours. Manager’s review: Good. They also tested 1 disaster recovery drill.
+
+Employee E010 is a QA Engineer.
+On 13th September, they completed 11 tasks, executed 42 test cases, logged 7 bugs, verified 4 bug fixes, created 2 regression test suites, attended 1 meeting, and worked actively for 6.3 hours.
+Manager’s review: Very Good. They also updated 1 automation framework."""
     
     # Text Area for User Input/Logs (RAG Query)
     st.session_state.logs_input = st.text_area(
         "Enter your company's employee performance logs or relevant data:", 
         height=180, 
         placeholder="e.g., Provide a balanced performance review...",
-        key="logs_input_area"
+        key="logs_input_area",
+        value=st.session_state.get('logs_input', "")
     )
+    
 
     # Dropdown for Employee Name
     employees = ["E001", "E002", "E003", "E004","E005", "E006", "E007", "E008", "E009", "E010"]

@@ -1,5 +1,6 @@
 # backend/langchain_logic.py
 
+
 from langchain_core.embeddings import Embeddings
 from sentence_transformers import SentenceTransformer
 from langchain.vectorstores import FAISS
@@ -45,7 +46,7 @@ Return a structured report with:
 - Weaknesses
 - Performance Rating (Excellent, Good, Needs Improvement)
 - Suggestions
-while keeping it concise (max 200 words).
+"Generate the report without extra blank lines. Use exactly one newline between paragraphs and no trailing spaces keeping it concise (max 200 words).
 
 Logs:
 {context}
