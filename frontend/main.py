@@ -15,6 +15,47 @@ API_URL = os.getenv("API_URL", "http://localhost:8000")
 print("Using API URL:", API_URL)
 api_endpoint_for_summary_generation = f"{API_URL}/generate_report"
 
+SAMPLE_LOGS_1="""Employee E001 is a Data Scientist. 
+On 11th September, they completed 11 tasks, made 5 commits, fixed 2 bugs, implemented 2 features, 
+created 4 reports, attended 1 meeting, and worked actively for 6.1 hours. 
+Manager’s review: Excellent. They also ran 2 experiments.
+
+Employee E002 is a Software Engineer.
+On 11th September, they completed 9 tasks, made 12 commits, fixed 5 bugs, implemented 3 features, reviewed 2 pull requests, attended 2 meetings, and worked actively for 7.4 hours.
+Manager’s review: Very Good. They also refactored 1 module.
+
+Employee E003 is a Business Analyst.
+On 11th September, they completed 7 tasks, prepared 3 reports, conducted 2 requirement sessions, analyzed 1 dataset, attended 3 meetings, and worked actively for 6.0 hours.
+Manager’s review: Good. They also created 1 presentation deck.
+
+Employee E004 is a DevOps Engineer.
+On 11th September, they completed 8 tasks, deployed 2 releases, fixed 3 CI/CD issues, wrote 4 infrastructure scripts, monitored 2 incidents, attended 1 meeting, and worked actively for 7.2 hours.
+Manager’s review: Excellent. They also automated 1 backup routine.
+
+Employee E005 is a QA Engineer.
+On 11th September, they completed 10 tasks, executed 35 test cases, logged 6 bugs, verified 3 bug fixes, wrote 2 automation scripts, attended 1 meeting, and worked actively for 6.5 hours.
+Manager’s review: Very Good. They also prepared 1 test plan."""
+
+
+SAMPLE_LOGS_2="""Employee E006 is a UI/UX Designer.
+On 12th September, they completed 6 tasks, created 3 wireframes, designed 2 prototypes, reviewed 1 design audit, collaborated on 2 feedback sessions, attended 2 meetings, and worked actively for 6.8 hours.
+Manager’s review: Excellent. They also updated 1 design guideline document.
+
+Employee E007 is a Data Scientist.
+On 13th September, they completed 10 tasks, made 4 commits, built 1 machine learning model, fixed 2 data pipeline issues, prepared 2 reports, attended 1 meeting, and worked actively for 7.0 hours.
+Manager’s review: Very Good. They also ran 3 experiments.
+
+Employee E008 is a Software Engineer.
+On 12th September, they completed 12 tasks, made 15 commits, fixed 4 bugs, implemented 2 features, reviewed 1 pull request, attended 2 meetings, and worked actively for 7.6 hours.
+Manager’s review: Excellent. They also optimized 1 database query.
+
+Employee E009 is a DevOps Engineer.
+On 14th September, they completed 9 tasks, deployed 1 release, fixed 2 monitoring alerts, wrote 3 automation scripts, updated 1 server configuration, attended 2 meetings, and worked actively for 6.9 hours. Manager’s review: Good. They also tested 1 disaster recovery drill.
+
+Employee E010 is a QA Engineer.
+On 13th September, they completed 11 tasks, executed 42 test cases, logged 7 bugs, verified 4 bug fixes, created 2 regression test suites, attended 1 meeting, and worked actively for 6.3 hours.
+Manager’s review: Very Good. They also updated 1 automation framework."""
+
 # Page config
 st.set_page_config(page_title="AI Performance Insights", page_icon="💡", layout="wide")
 
@@ -84,6 +125,7 @@ st.markdown("<div class='main-header'>Automated Employee Performance Evaluator</
 
 
 # --- PDF Generation Function ---
+@st.cache_data
 def create_pdf(summary_text: str, employee_id: str) -> bytes:
     buffer = io.BytesIO()
     c = canvas.Canvas(buffer, pagesize=letter)
@@ -135,47 +177,11 @@ with col1:
 
     with col_btn1:
         if st.button("Insert Sample Logs 1"):
-            st.session_state.logs_input = """Employee E001 is a Data Scientist. 
-On 11th September, they completed 11 tasks, made 5 commits, fixed 2 bugs, implemented 2 features, 
-created 4 reports, attended 1 meeting, and worked actively for 6.1 hours. 
-Manager’s review: Excellent. They also ran 2 experiments.
-
-Employee E002 is a Software Engineer.
-On 11th September, they completed 9 tasks, made 12 commits, fixed 5 bugs, implemented 3 features, reviewed 2 pull requests, attended 2 meetings, and worked actively for 7.4 hours.
-Manager’s review: Very Good. They also refactored 1 module.
-
-Employee E003 is a Business Analyst.
-On 11th September, they completed 7 tasks, prepared 3 reports, conducted 2 requirement sessions, analyzed 1 dataset, attended 3 meetings, and worked actively for 6.0 hours.
-Manager’s review: Good. They also created 1 presentation deck.
-
-Employee E004 is a DevOps Engineer.
-On 11th September, they completed 8 tasks, deployed 2 releases, fixed 3 CI/CD issues, wrote 4 infrastructure scripts, monitored 2 incidents, attended 1 meeting, and worked actively for 7.2 hours.
-Manager’s review: Excellent. They also automated 1 backup routine.
-
-Employee E005 is a QA Engineer.
-On 11th September, they completed 10 tasks, executed 35 test cases, logged 6 bugs, verified 3 bug fixes, wrote 2 automation scripts, attended 1 meeting, and worked actively for 6.5 hours.
-Manager’s review: Very Good. They also prepared 1 test plan."""
+            st.session_state.logs_input = SAMPLE_LOGS_1
 
     with col_btn2:
         if st.button("Insert Sample Logs 2"):
-            st.session_state.logs_input = """Employee E006 is a UI/UX Designer.
-On 12th September, they completed 6 tasks, created 3 wireframes, designed 2 prototypes, reviewed 1 design audit, collaborated on 2 feedback sessions, attended 2 meetings, and worked actively for 6.8 hours.
-Manager’s review: Excellent. They also updated 1 design guideline document.
-
-Employee E007 is a Data Scientist.
-On 13th September, they completed 10 tasks, made 4 commits, built 1 machine learning model, fixed 2 data pipeline issues, prepared 2 reports, attended 1 meeting, and worked actively for 7.0 hours.
-Manager’s review: Very Good. They also ran 3 experiments.
-
-Employee E008 is a Software Engineer.
-On 12th September, they completed 12 tasks, made 15 commits, fixed 4 bugs, implemented 2 features, reviewed 1 pull request, attended 2 meetings, and worked actively for 7.6 hours.
-Manager’s review: Excellent. They also optimized 1 database query.
-
-Employee E009 is a DevOps Engineer.
-On 14th September, they completed 9 tasks, deployed 1 release, fixed 2 monitoring alerts, wrote 3 automation scripts, updated 1 server configuration, attended 2 meetings, and worked actively for 6.9 hours. Manager’s review: Good. They also tested 1 disaster recovery drill.
-
-Employee E010 is a QA Engineer.
-On 13th September, they completed 11 tasks, executed 42 test cases, logged 7 bugs, verified 4 bug fixes, created 2 regression test suites, attended 1 meeting, and worked actively for 6.3 hours.
-Manager’s review: Very Good. They also updated 1 automation framework."""
+            st.session_state.logs_input = SAMPLE_LOGS_2
     
    
     # Text Area for User Input/Logs (RAG Query)
@@ -249,21 +255,7 @@ if generate_btn:
                 time.sleep(2) 
                 
                 # SIMULATED REPORT DATA
-                st.session_state.summary_report = f"""**Employee ID: {employee_id_only}**
-**Evaluation Date:** October 1, 2025
-
-**Overall Assessment:** The employee has demonstrated strong commitment and technical expertise during this period. The RAG system analysis indicates a significant contribution to key projects.
-
-**Key Strengths:**
-* **Code Quality:** Commits show a low bug rate and good adherence to coding standards.
-* **Collaboration:** Consistently provided clear and constructive feedback in code reviews.
-
-**Areas for Development:**
-* **Time Management:** Needs to improve estimation accuracy for larger tasks to prevent delays.
-* **Knowledge Sharing:** Encourage more internal presentations on new technical findings.
-
-**Recommendation:** Consider for promotion to Senior Developer within the next quarter, pending successful completion of leadership training.
-"""
+                st.session_state.summary_report = """**API Connection Error: Could not connect to the backend server.**"""
             except Exception as e:
                 # 3. General Error
                 st.error(f"❌ An unexpected error occurred: {e}")
@@ -287,3 +279,4 @@ if generate_btn:
                 file_name=f"performance_summary_{employee_id_only}_{int(time.time())}.pdf",
                 mime="application/pdf"
             )
+            del pdf_bytes
