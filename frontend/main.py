@@ -5,11 +5,10 @@ import io
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 import time
-from dotenv import load_dotenv
-import os
-load_dotenv(override=True)
 
-API_URL = f"{os.getenv('API_URL', 'http://localhost:8000')}"
+
+
+API_URL = "http://localhost:8000"
 api_endpoint_for_summary_generation = f"{API_URL}/generate_report"
 
 # Page config
