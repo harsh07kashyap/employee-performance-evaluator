@@ -172,8 +172,8 @@ with col1:
      # --- Sample Buttons ---
     col_btn1, col_btn2 = st.columns(2)
     
-    if "logs_input" not in st.session_state:
-        st.session_state.logs_input = ""
+    # if "logs_input" not in st.session_state:
+    #     st.session_state.logs_input = ""
 
     with col_btn1:
         if st.button("Insert Sample Logs 1"):
