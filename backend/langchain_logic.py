@@ -1,31 +1,69 @@
 # backend/langchain_logic.py
-
-
-from langchain_core.embeddings import Embeddings
-from sentence_transformers import SentenceTransformer
-from langchain.vectorstores import FAISS
+from pinecone import Pinecone
 from langchain.prompts import PromptTemplate
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_google_genai import ChatGoogleGenerativeAI
 from dotenv import load_dotenv
+import time
 load_dotenv(override=True)
 import os
 import re
+import requests
 
 print("DEBUG GOOGLE_API_KEY:", os.getenv("GOOGLE_API_KEY"))
+pc=Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
+index_name="automated-performance-evaluator-logs"
+index = pc.Index(index_name)
 
-# -----------------------------
-# Custom Embeddings
-# -----------------------------
-class SentenceTransformerEmbeddings(Embeddings):
-    def __init__(self, model_name="all-MiniLM-L6-v2"):
-        self.model = SentenceTransformer(model_name)
+def split_employee_logs(logs: str):
+    """
+    Splits logs into chunks where each chunk corresponds
+    to a single employee entry.
+    """
+    # Regex to match "Employee E001 ..." until the next "Employee"
+    pattern = r"(Employee\s+E\d+\s.*?)(?=(?:\nEmployee\s+E\d+)|\Z)"
+    
+    matches = re.findall(pattern, logs, flags=re.DOTALL)
+    
+    # Clean up chunks
+    chunks = [m.strip() for m in matches if m.strip()]
+    return chunks
 
-    def embed_documents(self, texts):
-        return self.model.encode(texts, show_progress_bar=False)
+def store_logs(employee_id: str, logs: str):
+    """Store logs in Pinecone using MaaS (llama-text-embed-v2)."""
+    # splitter = RecursiveCharacterTextSplitter(chunk_size=250, chunk_overlap=100)
+    chunks = split_employee_logs(logs)
+    print(chunks)
+    records = []
+    for i, chunk in enumerate(chunks):
+        records.append({
+            "id": f"{employee_id}-{i}",  # ✅ Must be "id", since Pinecone will use this as the document ID
+            "text": chunk  # ✅ Must be "text", since Pinecone will embed this
+            
+        })
+    
+    if records:
+        namespace = f"employee-{employee_id}"
+        index.upsert_records(namespace=namespace, records=records)
+        
 
-    def embed_query(self, text):
-        return self.model.encode([text])[0]
+def retrieve_logs(employee_id: str, query: str, top_k: int = 3) -> str:
+    """Retrieve most relevant logs using Pinecone MaaS query."""
+    results = index.search(
+        namespace=f"employee-{employee_id}",
+        query={
+            "inputs": {"text": query},
+            "top_k": top_k,
+        }
+    )
+    print("Result is:", results)
+    hits = results.get("result", {}).get("hits", [])
+    if not hits:
+        return "No logs found for this employee."
+
+    # ✅ return first hit’s text
+    return hits[0]["fields"]["text"]
+
 
 # -----------------------------
 # Prompt Template
@@ -46,18 +84,19 @@ Return a structured report with:
 - Weaknesses
 - Performance Rating (Excellent, Good, Needs Improvement)
 - Suggestions
-"Generate the report without extra blank lines. Use exactly one newline between paragraphs and no trailing spaces keeping it concise (max 200 words).
+Kindly maintain the structure and formatting as specified.
 
 Logs:
 {context}
 """
+
 
 prompt = PromptTemplate(template=template, input_variables=["employee_id", "context"])
 
 # -----------------------------
 # LLM (Google Generative AI)
 # -----------------------------
-llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash",google_api_key=os.getenv("GOOGLE_API_KEY"))
+llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash",google_api_key=os.getenv("GOOGLE_API_KEY"),temperature=0)
 
 # -----------------------------
 # Main pipeline function
@@ -65,19 +104,13 @@ llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash",google_api_key=os.getenv("
 def evaluate_employee(employee_id: str, logs: str) -> str:
     """Generate performance evaluation for a given employee from logs."""
 
-    # 1. Split logs into chunks
-    splitter = RecursiveCharacterTextSplitter(chunk_size=250, chunk_overlap=100)
-    chunks = splitter.create_documents([logs])
-
-    # 2. Build vector store
-    embedding_function = SentenceTransformerEmbeddings()
-    vector_store = FAISS.from_documents(chunks, embedding_function)
-
-    # 3. Retrieve relevant chunks
-    retriever = vector_store.as_retriever(search_type="similarity", search_kwargs={"k": 10})
-    query = f"Give all the logs for employee {employee_id}"
-    retrieved_docs = retriever.invoke(query)
-    context_text = "\n\n".join(doc.page_content for doc in retrieved_docs)
+    store_logs(employee_id, logs)
+    print("store_logs ran successfully.")
+    time.sleep(20)  # Wait for a moment to ensure data is stored
+    print("Fetching logs now...")
+    query = f"Give all logs for employee {employee_id}"
+    context_text = retrieve_logs(employee_id, query)
+    print("context_text fetched:", context_text)
 
     # 4. Format final prompt
     final_prompt = prompt.invoke({"employee_id": employee_id, "context": context_text})

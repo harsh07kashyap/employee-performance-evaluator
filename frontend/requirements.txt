@@ -2,4 +2,5 @@ streamlit
 requests
 python-dotenv
 reportlab
-pillow
+os
+dotenv
