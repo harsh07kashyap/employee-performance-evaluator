@@ -1,6 +1,5 @@
 import streamlit as st
 import requests
-import json
 import io
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
@@ -12,66 +11,36 @@ import os
 API_URL = (f"{os.getenv('API_URL')}" if os.getenv('API_URL') else "http://localhost:8000")
 api_endpoint_for_summary_generation = f"{API_URL}/generate_report"
 
-# Page config
 st.set_page_config(page_title="AI Performance Insights", page_icon="💡", layout="wide")
 
-# Custom CSS for a classy look and orange button
+# ---------- Custom CSS ----------
 st.markdown("""
     <style>
-    /* Main container background */
-    .main {
-        background-color: #f0f2f6; /* Light gray background for a clean look */
-    }
-    
-    /* Center and style the title */
-    .stApp > header {
-        background-color: #f0f2f6;
-    }
+    .main { background-color: #f0f2f6; }
+    .stApp > header { background-color: #f0f2f6; }
     .main-header {
-        text-align: left;
-        color: #333333;
-        font-weight: 600;
-        padding-top: 10px;
-        padding-bottom: 5px;
-        border-bottom: 2px solid #e0e0e0;
-        margin-bottom: 20px;
+        text-align: left; color: #333333; font-weight: 600;
+        padding-top: 10px; padding-bottom: 5px;
+        border-bottom: 2px solid #e0e0e0; margin-bottom: 20px;
     }
-    
-    /* Custom styling for the generate button (Orange) */
     div.stButton > button {
-        background-color: #f7931e; /* Vibrant Orange */
-        color: white;
-        border-radius: 8px;
-        border: none;
-        padding: 10px 20px;
-        font-weight: bold;
+        background-color: #f7931e; color: white;
+        border-radius: 8px; border: none;
+        padding: 10px 20px; font-weight: bold;
         transition: all 0.2s ease-in-out;
     }
-    div.stButton > button:hover {
-        background-color: #e5820d; /* Darker orange on hover */
-    }
-    
-    /* Style for the Evaluation Summary Box (Right Column) */
+    div.stButton > button:hover { background-color: #e5820d; }
     .report-box {
-        background: #ffffff;
-        border: 1px solid #e0e0e0;
-        padding: 20px;
-        border-radius: 12px;
-        font-size: 15px;
-        line-height: 1.6;
-        box-shadow: 0px 4px 12px rgba(0,0,0,0.08); /* More pronounced shadow */
-        min-height: 350px; /* Ensures the box has a minimum size */
-        white-space: pre-wrap;
+        background: #ffffff; border: 1px solid #e0e0e0;
+        padding: 20px; border-radius: 12px;
+        font-size: 15px; line-height: 1.6;
+        box-shadow: 0px 4px 12px rgba(0,0,0,0.08);
+        min-height: 350px; white-space: pre-wrap;
     }
-
-    /* Input/Select box styling */
     .stTextArea textarea, .stTextInput input, .stSelectbox > div {
-        border-radius: 8px;
-        border: 1px solid #dcdcdc;
-        padding: 10px;
-        font-size: 14px;
+        border-radius: 8px; border: 1px solid #dcdcdc;
+        padding: 10px; font-size: 14px;
     }
-    
     </style>
 """, unsafe_allow_html=True)
 
@@ -84,24 +53,19 @@ def create_pdf(summary_text: str, employee_id: str) -> bytes:
     buffer = io.BytesIO()
     c = canvas.Canvas(buffer, pagesize=letter)
     width, height = letter
-    
-    # Title
     c.setFont("Helvetica-Bold", 16)
     c.drawString(50, height - 40, f"Performance Evaluation for Employee: {employee_id}")
     c.line(50, height - 50, width - 50, height - 50)
-    
     c.setFont("Helvetica", 12)
-    
-    # Write summary text line by line
+
     y = height - 80
     for line in summary_text.split("\n"):
         c.drawString(50, y, line)
         y -= 18
-        if y < 50:  # New page if needed
+        if y < 50:
             c.showPage()
             y = height - 50
-            c.setFont("Helvetica", 12) # Reapply font for new page
-
+            c.setFont("Helvetica", 12)
     c.save()
     buffer.seek(0)
     return buffer.read()
@@ -114,7 +78,8 @@ col1, col2 = st.columns([1, 1.2]) # Input column slightly smaller than Output co
 # LEFT COLUMN: Generate Evaluation (Input)
 with col1:
     st.subheader("Generate Evaluation")
-     # --- Sample Buttons ---
+
+    # --- Sample Logs Buttons ---
     col_btn1, col_btn2 = st.columns(2)
     default_logs = ""
     
@@ -180,17 +145,15 @@ Manager’s review: Very Good. They also updated 1 automation framework."""
     st.session_state["_logs_backup"] = logs_input
     
 
-    # Dropdown for Employee Name
+    # Dropdown
     employees = ["E001", "E002", "E003", "E004","E005", "E006", "E007", "E008", "E009", "E010"]
     employee_id = st.selectbox("Select Employee:", employees)
 
     st.markdown("---")
-    
-    # Action button
+
     generate_btn = st.button("Generate Summary")
 
 
-# RIGHT COLUMN: Evaluation Summary (Output)
 with col2:
     st.subheader("Evaluation Summary")
 

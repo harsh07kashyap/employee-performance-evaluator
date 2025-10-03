@@ -2,8 +2,18 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from langchain_logic import evaluate_employee
 from langchain_logic import clean_summary
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="Employee Performance Evaluation API")
+
+# Allow requests from frontend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # 👈 or ["https://my-frontend.streamlit.app"]
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # -----------------------------
 # Pydantic Models
